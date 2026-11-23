@@ -1,0 +1,18 @@
+entity:
+  # Everyone who signs in: staff (administrator, sales rep) and customers who use the
+  # counsellor. Anyone signs up (as a customer); only the member and the administrator
+  # read or change the row; a password change ends the member's other sessions.
+  Member:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @signin(refresh=password) @owner(memberId)
+          @access(read=owner, create=public, update=owner) @sort(name+) @terms(user, 사용자, 회원)
+          @ui(menu=admin, order=100, icon=users, admin) @label(en=Member) -- 회원
+    fields:
+      memberId:  long @id @sequence @label(en=Member no.) -- 회원 번호
+      login:     string(30)! @login @length(min=4) @pattern('^[a-zA-Z0-9._-]+$', 'login may use letters, digits and . _ -') @search(eq) @label(en=Login ID) -- 로그인 ID
+      password:  string(255)! @password @length(min=8) @pattern('^(?=.*[A-Za-z])(?=.*[0-9]).+$', 'password needs a letter and a digit') @label(en=Password) -- 비밀번호
+      name:      string(50)! @notblank @search(like) @label(en=Name) -- 이름
+      email:     string(100)! @email @search(eq) @label(en=E-mail) -- 이메일
+      phone:     string(20) @encrypt(digits) @s(eq) @env:maskphone @label(en=Phone) -- 전화번호
+      company:   string(100) @label(en=Company) -- 소속 회사
+      role:      MemberRole @default(MemberRole.CUSTOMER) @access(admin) @label(en=Role) -- 역할
+      joinedAt:  datetime @readonly @default(now) @label(en=Joined at) -- 가입 일시

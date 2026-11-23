@@ -1,0 +1,64 @@
+{
+  "app": { "name": "ElastiCORE CRM", "tagline": "Sales and customer service in one place", "point1": "One DSL for the API, the screens, Excel and the AI assistant", "point2": "A demo built with ElastiCORE 3.0",
+    "f1": "Pipeline", "f1Body": "Track every deal from lead to close, and drag it to its next stage.",
+    "f2": "Customer service", "f2Body": "Requests from intake to answer; each customer sees only their own.",
+    "f3": "AI assistant", "f3Body": "Answers from the CRM's records and help articles, within your access.",
+    "fictional": "every company and person is made up" },
+  "menu": { "home": "Home", "pipeline": "Pipeline", "sales": "Sales", "service": "Service", "catalog": "Catalog", "admin": "Administration", "assistant": "AI assistant", "ai": "AI", "myTickets": "My requests" },
+  "common": {
+    "list": "List", "board": "Board",
+    "new": "New", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "close": "Close",
+    "search": "Search", "reset": "Reset", "filter": "Filter", "more": "More", "back": "Back to list",
+    "loading": "Loading", "noData": "No records to show.", "yes": "Yes", "no": "No",
+    "all": "All", "mine": "Mine", "refresh": "Refresh", "columns": "Columns", "density": "Row height",
+    "compact": "Compact", "comfortable": "Comfortable", "selected": "{{count}} selected", "total": "{{count}} records",
+    "range": "{{from}}-{{to}} of {{total}}", "perPage": "{{n}} / page", "confirmDelete": "Delete the {{count}} selected records?",
+    "confirmDeleteOne": "Delete this record?", "deleted": "Deleted.", "saved": "Saved.",
+    "required": "Enter {{label}}.", "maxLength": "{{label}} takes at most {{n}} characters.",
+    "from": "from", "to": "to", "details": "Details", "related": "Related", "system": "System information",
+    "masked": "Protected", "maskedKept": "Left as it is, the masked value keeps what is stored.", "encrypted": "Stored encrypted", "noAccess": "You do not have access to this page.",
+    "error": "The request could not be completed.", "expand": "Expand menu", "collapse": "Collapse menu", "language": "Language", "showColumns": "Shown columns", "resetColumns": "Reset"
+  },
+  "validation": {
+    "minLength": "{{label}} takes at least {{n}} characters.", "minItems": "{{label}} needs at least {{n}}.",
+    "min": "{{label}} must be at least {{n}}.", "max": "{{label}} must be at most {{n}}.",
+    "pattern": "{{label}} is not in the expected form.", "email": "Enter a valid email address for {{label}}.",
+    "invalid": "Check {{label}}."
+  },
+  "excel": {
+    "menu": "Excel", "view": "Table as shown", "viewHint": "This page, with the columns and order you see",
+    "selection": "Selected rows", "all": "Every matching row", "allHint": "All rows of the search (up to {{max}})",
+    "preparing": "Preparing the Excel file", "done": "Downloaded {{count}} rows.", "tooMany": "{{count}} rows is more than {{max}}. Narrow the search."
+  },
+  "record": { "path": "Path", "markAs": "Mark as {{stage}}", "moved": "Moved to {{stage}}.", "owner": "Owner", "created": "Created", "notFound": "The record was not found." },
+  "commands": {
+    "qualify": "Qualify", "convert": "Convert", "disqualify": "Close", "propose": "Propose", "negotiate": "Negotiate",
+    "win": "Won", "lose": "Lost", "reopen": "Reopen", "send": "Send", "accept": "Accept", "reject": "Reject",
+    "answer": "Mark answered", "close": "Close"
+  },
+  "home": {
+    "title": "Sales overview", "pipeline": "Open pipeline", "won": "Won amount", "winRate": "Win rate", "openTickets": "Open requests",
+    "byStage": "Pipeline by stage", "upcoming": "Upcoming activities", "closing": "Closing this quarter", "recentTickets": "Recent requests",
+    "deals": "{{count}} deals", "noUpcoming": "No activities scheduled.",
+    "morning": "Good morning, {{name}}", "afternoon": "Good afternoon, {{name}}", "evening": "Good evening, {{name}}",
+    "subtitleMine": "Your accounts and deals at a glance.", "subtitleAll": "The whole sales team at a glance.",
+    "wonDeals": "{{count}} deals won", "winRateSub": "{{won}} won of {{closed}} closed", "urgent": "{{count}} urgent",
+    "byStageSub": "{{count}} open deals · {{amount}}"
+  },
+  "pipeline": { "title": "Sales pipeline", "hint": "Drag a card to the next stage. Only the moves the DSL's states allow are taken.", "notAllowed": "A deal cannot move from {{from}} to {{to}}." },
+  "auth": {
+    "signIn": "Sign in", "signOut": "Sign out", "signUp": "Sign up", "login": "Login ID", "password": "Password",
+    "name": "Name", "email": "E-mail", "company": "Company", "phone": "Phone", "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?", "wrong": "The login or password is wrong, or sign-in is paused for a while.",
+    "signedUp": "Your account is ready and you are signed in.", "demo": "Demo accounts", "demoHint": "Every password is demo1234",
+    "admin": "Administrator", "rep": "Sales rep", "customer": "Customer", "passwordRule": "8+ characters with letters and digits",
+    "signUpNote": "A new account is a customer account: it opens requests and uses the AI assistant."
+  },
+  "assistant": {
+    "title": "AI assistant", "placeholder": "How can I help?", "send": "Send", "thinking": "Preparing an answer",
+    "intro": "Answers from the CRM's data and help articles, within what your account may see.",
+    "sources": "Sources", "unavailable": "The AI assistant is not available: the server has no AI key.", "newChat": "New chat",
+    "suggestStaff": ["Which of my deals close this quarter?", "What is my open pipeline and win rate?", "Are there urgent open requests?"],
+    "suggestCustomer": ["When is the invoice issued?", "Where are my requests at?", "How do I turn on two-step verification?"]
+  }
+}

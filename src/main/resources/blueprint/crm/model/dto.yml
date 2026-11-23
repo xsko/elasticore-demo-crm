@@ -1,0 +1,42 @@
+# The answers carry the names of what a row points to, so a list shows "Hanbit Logistics"
+# rather than account 12. A @ref to another aggregate is read-only.
+dto:
+  AccountDTO:
+    meta: dto @template(Account)
+    fields:
+      ownerName: string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  ContactDTO:
+    meta: dto @template(Contact)
+    fields:
+      accountName: string @ref(account.name) @label(en=Account name) -- 고객사명
+      ownerName:   string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  LeadDTO:
+    meta: dto @template(Lead)
+    fields:
+      ownerName: string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  OpportunityDTO:
+    meta: dto @template(Opportunity)
+    fields:
+      accountName: string @ref(account.name) @label(en=Account name) -- 고객사명
+      ownerName:   string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  ActivityDTO:
+    meta: dto @template(Activity)
+    fields:
+      accountName:     string @ref(account.name) @label(en=Account name) -- 고객사명
+      opportunityName: string @ref(opportunity.name) @label(en=Opportunity name) -- 영업 기회명
+      ownerName:       string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  QuoteDTO:
+    meta: dto @template(Quote)
+    fields:
+      opportunityName: string @ref(opportunity.name) @label(en=Opportunity name) -- 영업 기회명
+      ownerName:       string @ref(owner.name) @label(en=Owner name) -- 담당자명
+
+  TicketDTO:
+    meta: dto @template(Ticket)
+    fields:
+      customerName: string @ref(customer.name) @label(en=Customer name) -- 고객명

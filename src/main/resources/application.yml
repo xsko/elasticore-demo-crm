@@ -1,0 +1,102 @@
+spring:
+  application:
+    name: elasticore-demo-crm
+  # Embedded H2, kept in a file so the data survives a restart (./data/crm.mv.db).
+  # Delete the data folder to start again from the sample data.
+  datasource:
+    url: jdbc:h2:file:./data/crm-${crm.seed.language};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: false
+  # The label bundles the DSL generates (crm-labels*.properties) beside the messages,
+  # read by the request's Accept-Language. Without fallback-to-system-locale: false a
+  # language without a file of its own would get the server machine's file.
+  messages:
+    basename: messages,i18n/crm-labels
+    fallback-to-system-locale: false
+    encoding: UTF-8
+  web:
+    locale: ko
+  # The AI assistant's model. CRM_AI_PROVIDER: anthropic (Claude), openai (OpenAI or any
+  # OpenAI-compatible server such as a local LLM - set OPENAI_BASE_URL, ending in /v1), or none.
+  # Keys come from the environment only.
+  ai:
+    model:
+      chat: ${CRM_AI_PROVIDER:none}
+      embedding: none
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:unset}
+      chat:
+        options:
+          model: ${CRM_AI_MODEL:claude-sonnet-5-5}
+          max-tokens: 2048
+    openai:
+      api-key: ${OPENAI_API_KEY:unset}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      chat:
+        options:
+          model: ${CRM_AI_MODEL:gpt-4o-mini}
+          temperature: 0.2
+
+server:
+  port: 8080
+  tomcat:
+    # A list's page, sort and search live in its address (sorters[0][field]=amount ...); a
+    # browser sends the brackets as they are, which Tomcat refuses (400) unless allowed.
+    relaxed-query-chars: "[,]"
+  servlet:
+    session:
+      timeout: 60m
+      cookie:
+        name: CRMSESSION
+        http-only: true
+        same-site: lax
+  error:
+    include-stacktrace: never
+
+elasticore:
+  crypto:
+    # DEMO KEYS ONLY - the prod profile refuses to start without CRM_CRYPTO_KEY and
+    # CRM_CRYPTO_INDEX_KEY (openssl rand -base64 32, two different values).
+    key: ${CRM_CRYPTO_KEY:cqKnJ8164dzc1AkqEBBjfju5ZDSVScZxhj8x2uNuY/o=}
+    index-key: ${CRM_CRYPTO_INDEX_KEY:n/Aa4dqvmZa/89b6LKpCTQpzLgZNc6Fk5QEIto4zHuc=}
+  export:
+    # The most rows the generated export (POST .../export, the "every row" Excel button)
+    # writes; a larger search is refused with 400 before anything is written.
+    max-rows: 100000
+
+crm:
+  seed:
+    # Sample companies, people, deals and inquiries on the first start of an empty database.
+    enabled: true
+    # Demo sign-ins (admin, reps, customers) with the passwords in README.md.
+    demo-accounts: true
+    # The language the sample data is written in: en (amounts in dollars) or ko (in won).
+    # Each language keeps its own demo database (./data/crm-en, ./data/crm-ko), so switching
+    # needs nothing deleted: CRM_SEED_LANGUAGE=ko ./gradlew bootRun
+    language: ${CRM_SEED_LANGUAGE:en}
+  # The currency the amounts are kept in (ISO 4217). Empty: the sample data's - USD for en, KRW for ko.
+  currency: ${CRM_CURRENCY:}
+  security:
+    # Wrong passwords before a login is refused for a while, and for how long.
+    max-failed-sign-ins: 5
+    lock-minutes: 10
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.hibernate.SQL: warn

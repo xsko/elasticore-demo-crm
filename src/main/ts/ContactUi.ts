@@ -1,0 +1,116 @@
+/**
+ * Contact as the screens see it: its fields (kind, label in each language,
+ * limits, references, search), its lifecycles and who may do what.
+ *
+ * Generated from the DSL by the CRM's own ElastiCORE rules (crm-ui-rules). Change the
+ * DSL, not this file: the generic list, form, detail and Excel export read it.
+ */
+export const ContactUi = {
+    name: "Contact",
+    root: true,
+    label: "연락처",
+    labels: { en: "Contact" },
+    path: "/api/crm/contact",
+    key: "contactId",
+    defaultSort: "name+",
+    pageSize: 20,
+    editable: true,
+    terms: ["person", "담당자", "연락처"],
+    access: {
+        create: "REP",
+        delete: "REP&owner",
+        read: "REP&owner",
+        update: "REP&owner",
+    },
+    owner: "ownerMemberId",
+    ui: { icon: "contact", menu: "sales", order: 40 },
+    fields: [
+        {
+            name: "contactId",
+            kind: "integer",
+            label: "연락처 번호",
+            labels: { en: "Contact no." },
+            key: true,
+            generated: true,
+            readOnly: true,
+        },
+        {
+            name: "name",
+            kind: "string",
+            label: "이름",
+            labels: { en: "Name" },
+            required: true,
+            maxLength: 50,
+            search: "like",
+        },
+        {
+            name: "jobTitle",
+            kind: "string",
+            label: "직함",
+            labels: { en: "Job title" },
+            maxLength: 50,
+        },
+        {
+            name: "email",
+            kind: "string",
+            label: "이메일",
+            labels: { en: "E-mail" },
+            maxLength: 100,
+            search: "eq",
+            encrypted: true,
+        },
+        {
+            name: "phone",
+            kind: "string",
+            label: "전화번호",
+            labels: { en: "Phone" },
+            maxLength: 20,
+            search: "eq",
+            encrypted: true,
+        },
+        {
+            name: "account",
+            kind: "ref",
+            label: "고객사",
+            labels: { en: "Account" },
+            ref: { entity: "Account", idField: "accountId", nameField: "accountName" },
+            required: true,
+        },
+        {
+            name: "owner",
+            kind: "ref",
+            label: "담당자",
+            labels: { en: "Owner" },
+            ref: { entity: "Member", idField: "ownerMemberId", nameField: "ownerName" },
+        },
+        {
+            name: "createdAt",
+            kind: "datetime",
+            label: "등록 일시",
+            labels: { en: "Created at" },
+            readOnly: true,
+            default: "now",
+        },
+        {
+            name: "accountName",
+            kind: "string",
+            label: "고객사명",
+            labels: { en: "Account name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+        {
+            name: "ownerName",
+            kind: "string",
+            label: "담당자명",
+            labels: { en: "Owner name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+    ],
+    lifecycles: [],
+} as const;
+
+export default ContactUi;

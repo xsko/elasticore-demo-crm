@@ -1,0 +1,27 @@
+# Build output and local state
+.gradle/
+build/
+crm-ui-rules/build/
+/data/
+*.log
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Screens: dependencies and the bundle the build writes into the jar's static folder
+web/node_modules/
+web/dist/
+/src/main/resources/static/
+
+# The guides ElastiCORE copies into the blueprint on every build (the version's own;
+# read them there after a build)
+/src/main/resources/blueprint/elasticore-*.md
+
+# The generated code is committed on purpose: this is a demo of what the DSL produces,
+# and .elasticore/cache is what the generator merges hand edits against.
+NUL
+
+# Playwright output
+web/test-results/
+web/playwright-report/

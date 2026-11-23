@@ -1,0 +1,17 @@
+# What the business means by its numbers - exported to the Apache Ossie semantic model
+# (blueprint/semantic_model.yml), which the dashboard and the AI assistant read.
+metrics:
+  pipelineAmount: sum(Opportunity.amount) where stage in (PROSPECT, PROPOSAL, NEGOTIATION) @terms(pipeline, open pipeline, 파이프라인) -- 진행 중 파이프라인 금액
+  openDeals:      count(Opportunity) where stage in (PROSPECT, PROPOSAL, NEGOTIATION) @terms(open deals, 진행 건수) -- 진행 중 영업 기회 수
+  wonAmount:      sum(Opportunity.amount) where stage = WON @terms(bookings, won revenue, 수주액) -- 수주 금액
+  wonDeals:       count(Opportunity) where stage = WON @terms(wins, 수주 건수) -- 수주 건수
+  lostDeals:      count(Opportunity) where stage = LOST @terms(losses, 실주 건수) -- 실주 건수
+  closedDeals:    wonDeals + lostDeals -- 마감된 영업 기회 수
+  winRate:        wonDeals / closedDeals @terms(win rate, 승률) -- 승률 (수주 / 마감)
+  averageDeal:    wonAmount / wonDeals @terms(average deal size, 평균 수주액) -- 수주 1건 평균 금액
+  newLeads:       count(Lead) where status = NEW @terms(new leads, 신규 리드) -- 신규 리드 수
+  qualifiedLeads: count(Lead) where status = QUALIFIED -- 검증된 리드 수
+  accountCount:   count(Account) @terms(customers, 고객사 수) -- 고객사 수
+  openTickets:    count(Ticket) where status in (OPEN, ANSWERED) @terms(open inquiries, 미종결 상담) -- 종결되지 않은 상담 수
+  urgentTickets:  count(Ticket) where status = OPEN and priority = URGENT @terms(urgent inquiries, 긴급 상담) -- 답변 대기 중인 긴급 상담 수
+  acceptedQuotes: sum(Quote.total) where status = ACCEPTED @terms(accepted quotes, 승인 견적액) -- 승인된 견적 금액

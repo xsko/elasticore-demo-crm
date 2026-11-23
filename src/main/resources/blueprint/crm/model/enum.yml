@@ -1,0 +1,149 @@
+# Code lists of the CRM. Each list carries its labels per language as columns of its own,
+# label (the model's language, Korean) and label_en - read by every output (ElastiCORE #268).
+enumeration:
+  MemberRole:
+    meta: enum @db(code) @json(code) @label(en=Role) -- 역할
+    fields:
+      code:    string(1) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      ADMIN:    A, 관리자, Administrator
+      REP:      R, 영업 담당, Sales rep
+      CUSTOMER: C, 고객, Customer
+
+  Industry:
+    meta: enum @db(code) @json(code) @label(en=Industry) -- 업종
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      MANUFACTURING: MFG, 제조, Manufacturing
+      FINANCE:       FIN, 금융, Finance
+      RETAIL:        RTL, 유통, Retail
+      SOFTWARE:      SWE, 소프트웨어, Software
+      HEALTHCARE:    HLT, 의료, Healthcare
+      PUBLIC:        PUB, 공공, Public sector
+      LOGISTICS:     LOG, 물류, Logistics
+
+  AccountTier:
+    meta: enum @db(code) @json(code) @label(en=Tier) -- 등급
+    fields:
+      code:    string(1) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      STRATEGIC: S, 전략, Strategic
+      KEY:       K, 핵심, Key
+      STANDARD:  N, 일반, Standard
+
+  LeadSource:
+    meta: enum @db(code) @json(code) @label(en=Lead source) -- 유입 경로
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      WEBSITE:  WEB, 웹사이트, Website
+      REFERRAL: REF, 소개, Referral
+      EVENT:    EVT, 행사, Event
+      CAMPAIGN: CMP, 캠페인, Campaign
+      INBOUND:  INB, 문의 전화, Inbound call
+
+  LeadStatus:
+    meta: enum @db(code) @json(code) @label(en=Lead status) -- 리드 상태
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      NEW:       NEW, 신규, New
+      QUALIFIED: QLF, 검증됨, Qualified
+      CONVERTED: CNV, 전환됨, Converted
+      LOST:      LST, 종료, Closed lost
+
+  OpportunityStage:
+    meta: enum @db(code) @json(code) @label(en=Stage) -- 단계
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      PROSPECT:    PRS, 발굴, Prospecting
+      PROPOSAL:    PRP, 제안, Proposal
+      NEGOTIATION: NGT, 협상, Negotiation
+      WON:         WON, 수주, Won
+      LOST:        LST, 실주, Lost
+
+  ProductCategory:
+    meta: enum @db(code) @json(code) @label(en=Category) -- 분류
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      LICENSE:      LIC, 라이선스, License
+      SUBSCRIPTION: SUB, 구독, Subscription
+      SERVICE:      SVC, 용역, Professional service
+      SUPPORT:      SUP, 유지보수, Support
+
+  QuoteStatus:
+    meta: enum @db(code) @json(code) @label(en=Quote status) -- 견적 상태
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      DRAFT:    DRF, 작성 중, Draft
+      SENT:     SNT, 발송, Sent
+      ACCEPTED: ACC, 승인, Accepted
+      REJECTED: REJ, 거절, Rejected
+
+  ActivityType:
+    meta: enum @db(code) @json(code) @label(en=Activity type) -- 활동 종류
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      CALL:    CAL, 통화, Call
+      MEETING: MTG, 미팅, Meeting
+      EMAIL:   EML, 메일, E-mail
+      TASK:    TSK, 할 일, Task
+
+  TicketCategory:
+    meta: enum @db(code) @json(code) @label(en=Inquiry type) -- 문의 유형
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      BILLING:   BIL, 결제·청구, Billing
+      TECHNICAL: TEC, 기술 지원, Technical
+      ACCOUNT:   ACT, 계정, Account
+      PRODUCT:   PRD, 상품 문의, Product
+      OTHER:     ETC, 기타, Other
+
+  TicketPriority:
+    meta: enum @db(code) @json(code) @label(en=Priority) -- 우선순위
+    fields:
+      code:    string(1) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      LOW:    L, 낮음, Low
+      NORMAL: N, 보통, Normal
+      HIGH:   H, 높음, High
+      URGENT: U, 긴급, Urgent
+
+  TicketStatus:
+    meta: enum @db(code) @json(code) @label(en=Ticket status) -- 상담 상태
+    fields:
+      code:    string(3) @code
+      label:   string(20)
+      label_en: string(30)
+    enum:
+      OPEN:     OPN, 접수, Open
+      ANSWERED: ANS, 답변 완료, Answered
+      CLOSED:   CLS, 종료, Closed

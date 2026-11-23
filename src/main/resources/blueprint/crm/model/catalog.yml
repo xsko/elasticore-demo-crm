@@ -1,0 +1,55 @@
+entity:
+  # What is sold. Anyone reads the catalog (the counsellor answers from it); the
+  # administrator keeps it.
+  Product:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @access(read=public) @sort(name+)
+          @terms(item, offering, 제품, 품목) @ui(menu=catalog, order=90, icon=package) @label(en=Product) -- 상품
+    fields:
+      productId:   long @id @sequence @label(en=Product no.) -- 상품 번호
+      code:        string(20)! @notblank @search(eq) @label(en=Product code) -- 상품 코드
+      name:        string(100)! @notblank @search(like) @label(en=Product name) -- 상품명
+      category:    ProductCategory! @search(in) @label(en=Category) -- 분류
+      price:       money(12.2)! @min(0, 'price must not be negative') @search(between) @terms(list price, 정가) @label(en=Unit price) -- 단가
+      active:      boolean @default(true) @search(eq) @label(en=On sale) -- 판매 중
+      description: text @label(en=Description) -- 설명
+
+  # A priced offer on an opportunity. Prices are taken from the catalog when the quote
+  # is made and kept as they were; the total is worked out by the server.
+  Quote:
+    meta: entity @root @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId)
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=REP&owner, send=REP&owner, accept=REP&owner, reject=REP&owner) @sort(quoteId-)
+          @terms(proposal, estimate, 견적서) @ui(menu=sales, order=60, icon=file-text) @label(en=Quote) -- 견적
+    fields:
+      quoteId:     long @id @sequence @label(en=Quote no.) -- 견적 번호
+      title:       string(200)! @notblank @editable @search(like) @label(en=Title) -- 견적명
+      opportunity: Opportunity! @ManyToOne @label(en=Opportunity) -- 영업 기회
+      validUntil:  date @editable @label(en=Valid until) -- 유효 기한
+      status:      QuoteStatus @search(in) @label(en=Status) -- 상태
+      total:       money(15.2) @default(0) @compute(sum(lines.subTotal)) @label(en=Total) -- 합계
+      lines:       List<QuoteLine> @OneToMany(mappedBy="quote") @dtype(List<QuoteLineDTO>) @minsize(1, 'a quote needs a line') @label(en=Lines) -- 견적 품목
+      owner:       Member @ManyToOne @label(en=Owner) -- 담당자
+      createdAt:   datetime @readonly @default(now) @label(en=Created at) -- 작성 일시
+      sentAt:      timestamp @stamp(SENT) @label(en=Sent at) -- 발송 일시
+    states:
+      status:
+        initial: DRAFT
+        send:    DRAFT -> SENT
+        accept:  SENT -> ACCEPTED
+        reject:  SENT -> REJECTED
+        delete:  DRAFT, REJECTED
+
+  QuoteLine:
+    meta: entity @label(en=Quote line) -- 견적 품목
+    fields:
+      lineId:    long @id @sequence @label(en=Line no.) -- 품목 번호
+      quote:     Quote @ManyToOne @label(en=Quote) -- 견적
+      product:   Product! @ManyToOne @label(en=Product) -- 상품
+      quantity:  quantity! @min(1) @label(en=Quantity) -- 수량
+      unitPrice: money(12.2) @snapshot(product.price) @label(en=Unit price) -- 단가
+      subTotal:  money(15.2) @compute(unitPrice * quantity) @label(en=Amount) -- 금액
+
+dto:
+  QuoteLineDTO:
+    meta: dto @template(QuoteLine)
+    fields:
+      productName: string @ref(product.name) @label(en=Product name) -- 상품명

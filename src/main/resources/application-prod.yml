@@ -1,0 +1,35 @@
+# Production: nothing secret has a default here, so a missing one stops the start.
+spring:
+  datasource:
+    url: ${CRM_DB_URL}
+    username: ${CRM_DB_USER}
+    password: ${CRM_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+elasticore:
+  crypto:
+    key: ${CRM_CRYPTO_KEY}
+    index-key: ${CRM_CRYPTO_INDEX_KEY}
+
+crm:
+  seed:
+    enabled: false
+    demo-accounts: false
+  admin:
+    # The first administrator: created when the database has none.
+    login: ${CRM_ADMIN_LOGIN:admin}
+    password: ${CRM_ADMIN_PASSWORD}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

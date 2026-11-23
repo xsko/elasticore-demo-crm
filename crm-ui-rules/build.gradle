@@ -1,0 +1,34 @@
+// The CRM's own ElastiCORE rules: they read the same DSL the generator does and write
+// what the screens need beside the generated TypeScript client (src/main/ts) -
+// field order, kinds, references, search fields, lifecycles and labels in every
+// language - so a field added to the DSL appears in lists, forms and Excel at once.
+plugins {
+    id 'java-library'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly "io.elasticore:elasticore-base:${elasticoreVersion}"
+
+    testImplementation "io.elasticore:elasticore-base:${elasticoreVersion}"
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

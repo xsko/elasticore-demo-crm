@@ -1,0 +1,158 @@
+/**
+ * Quote as the screens see it: its fields (kind, label in each language,
+ * limits, references, search), its lifecycles and who may do what.
+ *
+ * Generated from the DSL by the CRM's own ElastiCORE rules (crm-ui-rules). Change the
+ * DSL, not this file: the generic list, form, detail and Excel export read it.
+ */
+export const QuoteUi = {
+    name: "Quote",
+    root: true,
+    label: "견적",
+    labels: { en: "Quote" },
+    path: "/api/crm/quote",
+    key: "quoteId",
+    defaultSort: "quoteId-",
+    pageSize: 20,
+    editable: false,
+    terms: ["proposal", "estimate", "견적서"],
+    access: {
+        accept: "REP&owner",
+        create: "REP",
+        delete: "REP&owner",
+        read: "REP&owner",
+        reject: "REP&owner",
+        send: "REP&owner",
+        update: "REP&owner",
+    },
+    owner: "ownerMemberId",
+    ui: { icon: "file-text", menu: "sales", order: 60 },
+    fields: [
+        {
+            name: "quoteId",
+            kind: "integer",
+            label: "견적 번호",
+            labels: { en: "Quote no." },
+            key: true,
+            generated: true,
+            readOnly: true,
+        },
+        {
+            name: "title",
+            kind: "string",
+            label: "견적명",
+            labels: { en: "Title" },
+            required: true,
+            maxLength: 200,
+            search: "like",
+        },
+        {
+            name: "opportunity",
+            kind: "ref",
+            label: "영업 기회",
+            labels: { en: "Opportunity" },
+            ref: { entity: "Opportunity", idField: "opportunityId", nameField: "opportunityName" },
+            required: true,
+            createOnly: true,
+        },
+        {
+            name: "validUntil",
+            kind: "date",
+            label: "유효 기한",
+            labels: { en: "Valid until" },
+        },
+        {
+            name: "status",
+            kind: "enum",
+            label: "상태",
+            labels: { en: "Status" },
+            enum: "QuoteStatus",
+            search: "in",
+            readOnly: true,
+        },
+        {
+            name: "total",
+            kind: "money",
+            label: "합계",
+            labels: { en: "Total" },
+            readOnly: true,
+            derived: true,
+            default: "0",
+        },
+        {
+            name: "lines",
+            kind: "list",
+            label: "견적 품목",
+            labels: { en: "Lines" },
+            of: "QuoteLine",
+        },
+        {
+            name: "owner",
+            kind: "ref",
+            label: "담당자",
+            labels: { en: "Owner" },
+            ref: { entity: "Member", idField: "ownerMemberId", nameField: "ownerName" },
+            createOnly: true,
+        },
+        {
+            name: "createdAt",
+            kind: "datetime",
+            label: "작성 일시",
+            labels: { en: "Created at" },
+            readOnly: true,
+            default: "now",
+        },
+        {
+            name: "sentAt",
+            kind: "timestamp",
+            label: "발송 일시",
+            labels: { en: "Sent at" },
+            readOnly: true,
+            derived: true,
+        },
+        {
+            name: "opportunityName",
+            kind: "string",
+            label: "영업 기회명",
+            labels: { en: "Opportunity name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+        {
+            name: "ownerName",
+            kind: "string",
+            label: "담당자명",
+            labels: { en: "Owner name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+    ],
+    lifecycles: [
+        {
+            field: "status",
+            initial: "DRAFT",
+            moves: [
+                {
+                    command: "send",
+                    from: ["DRAFT"],
+                    to: "SENT",
+                },
+                {
+                    command: "accept",
+                    from: ["SENT"],
+                    to: "ACCEPTED",
+                },
+                {
+                    command: "reject",
+                    from: ["SENT"],
+                    to: "REJECTED",
+                },
+            ],
+            deletableIn: ["DRAFT", "REJECTED"],
+        },
+    ],
+} as const;
+
+export default QuoteUi;

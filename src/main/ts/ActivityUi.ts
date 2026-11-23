@@ -1,0 +1,128 @@
+/**
+ * Activity as the screens see it: its fields (kind, label in each language,
+ * limits, references, search), its lifecycles and who may do what.
+ *
+ * Generated from the DSL by the CRM's own ElastiCORE rules (crm-ui-rules). Change the
+ * DSL, not this file: the generic list, form, detail and Excel export read it.
+ */
+export const ActivityUi = {
+    name: "Activity",
+    root: true,
+    label: "활동",
+    labels: { en: "Activity" },
+    path: "/api/crm/activity",
+    key: "activityId",
+    defaultSort: "dueAt+",
+    pageSize: 20,
+    editable: true,
+    terms: ["task", "schedule", "일정", "할 일"],
+    access: {
+        create: "REP",
+        delete: "REP&owner",
+        read: "REP&owner",
+        update: "REP&owner",
+    },
+    owner: "ownerMemberId",
+    ui: { icon: "calendar-check", menu: "sales", order: 50 },
+    fields: [
+        {
+            name: "activityId",
+            kind: "integer",
+            label: "활동 번호",
+            labels: { en: "Activity no." },
+            key: true,
+            generated: true,
+            readOnly: true,
+        },
+        {
+            name: "type",
+            kind: "enum",
+            label: "종류",
+            labels: { en: "Type" },
+            enum: "ActivityType",
+            required: true,
+            search: "in",
+        },
+        {
+            name: "subject",
+            kind: "string",
+            label: "제목",
+            labels: { en: "Subject" },
+            required: true,
+            maxLength: 200,
+            search: "like",
+        },
+        {
+            name: "dueAt",
+            kind: "datetime",
+            label: "예정 일시",
+            labels: { en: "Due at" },
+            search: "between",
+        },
+        {
+            name: "done",
+            kind: "boolean",
+            label: "완료",
+            labels: { en: "Done" },
+            search: "eq",
+            default: "false",
+        },
+        {
+            name: "account",
+            kind: "ref",
+            label: "고객사",
+            labels: { en: "Account" },
+            ref: { entity: "Account", idField: "accountId", nameField: "accountName" },
+        },
+        {
+            name: "opportunity",
+            kind: "ref",
+            label: "영업 기회",
+            labels: { en: "Opportunity" },
+            ref: { entity: "Opportunity", idField: "opportunityId", nameField: "opportunityName" },
+        },
+        {
+            name: "note",
+            kind: "text",
+            label: "메모",
+            labels: { en: "Note" },
+        },
+        {
+            name: "owner",
+            kind: "ref",
+            label: "담당자",
+            labels: { en: "Owner" },
+            ref: { entity: "Member", idField: "ownerMemberId", nameField: "ownerName" },
+        },
+        {
+            name: "accountName",
+            kind: "string",
+            label: "고객사명",
+            labels: { en: "Account name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+        {
+            name: "opportunityName",
+            kind: "string",
+            label: "영업 기회명",
+            labels: { en: "Opportunity name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+        {
+            name: "ownerName",
+            kind: "string",
+            label: "담당자명",
+            labels: { en: "Owner name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+    ],
+    lifecycles: [],
+} as const;
+
+export default ActivityUi;

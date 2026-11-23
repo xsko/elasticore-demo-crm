@@ -1,0 +1,39 @@
+entity:
+  # A customer's inquiry. The customer opens it (often through the counsellor), reads
+  # only their own, and closes or reopens it; a sales rep reads every one and answers it.
+  Ticket:
+    meta: entity @root @expose(20, methods="create,read,search,update,delete,export") @owner(customerMemberId) @event(Answered)
+          @access(read=owner|REP, create=user, update=REP, answer=REP, close=owner|REP, reopen=owner|REP) @sort(ticketId-)
+          @terms(inquiry, case, support request, 문의, 상담, 민원) @ui(menu=service, order=70, icon=life-buoy, board) @label(en=Ticket) -- 상담
+    fields:
+      ticketId:  long @id @sequence @label(en=Ticket no.) -- 상담 번호
+      subject:   string(200)! @notblank @search(like) @label(en=Subject) -- 제목
+      body:      text! @notblank @label(en=Inquiry) -- 문의 내용
+      category:  TicketCategory! @search(in) @label(en=Inquiry type) -- 문의 유형
+      priority:  TicketPriority @default(TicketPriority.NORMAL) @editable @search(in) @label(en=Priority) -- 우선순위
+      status:    TicketStatus @search(in) @label(en=Status) -- 상태
+      reply:     text @editable @label(en=Reply) -- 답변
+      channel:   string(20) @default("web") @label(en=Channel) -- 접수 경로
+      customer:  Member @ManyToOne @label(en=Customer) -- 고객
+      openedAt:  datetime @readonly @default(now) @search(between) @label(en=Opened at) -- 접수 일시
+      answeredAt: timestamp @stamp(ANSWERED) @label(en=Answered at) -- 답변 일시
+      closedAt:  timestamp @stamp(CLOSED) @label(en=Closed at) -- 종료 일시
+    states:
+      status:
+        initial: OPEN
+        answer:  OPEN -> ANSWERED
+        reopen:  ANSWERED, CLOSED -> OPEN
+        close:   OPEN, ANSWERED -> CLOSED
+        delete:  CLOSED
+
+  # Help articles the counsellor answers from. Public to read; staff write them.
+  KnowledgeArticle:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @access(read=public) @sort(title+)
+          @terms(faq, help, guide, 도움말, 자주 묻는 질문) @ui(menu=service, order=80, icon=book-open) @label(en=Help article) -- 도움말
+    fields:
+      articleId: long @id @sequence @label(en=Article no.) -- 문서 번호
+      title:     string(200)! @notblank @search(like) @label(en=Title) -- 제목
+      body:      text! @notblank @label(en=Body) -- 본문
+      category:  TicketCategory @search(in) @label(en=Topic) -- 주제
+      keywords:  string(300) @search(like) @label(en=Keywords) -- 검색어
+      published: boolean @default(true) @search(eq) @label(en=Published) -- 게시

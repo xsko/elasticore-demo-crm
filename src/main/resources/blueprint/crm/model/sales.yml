@@ -1,0 +1,108 @@
+entity:
+  # A customer company. A sales rep sees and works the accounts assigned to them;
+  # the administrator sees all and reassigns them.
+  Account:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId)
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=admin) @sort(name+)
+          @terms(customer company, client, 고객사, 거래처) @ui(menu=sales, order=30, icon=building-2) @label(en=Account) -- 고객사
+    fields:
+      accountId:     long @id @sequence @label(en=Account no.) -- 고객사 번호
+      name:          string(100)! @notblank @search(like) @label(en=Account name) -- 고객사명
+      industry:      Industry @search(in) @label(en=Industry) -- 업종
+      tier:          AccountTier @default(AccountTier.STANDARD) @search(in) @label(en=Tier) -- 등급
+      website:       string(200) @label(en=Website) -- 웹사이트
+      phone:         string(20) @label(en=Main phone) -- 대표 전화
+      city:          string(50) @search(like) @label(en=City) -- 도시
+      annualRevenue: money(15.2) @min(0) @terms(revenue, 매출) @label(en=Annual revenue) -- 연 매출
+      employees:     int @min(0) @label(en=Employees) -- 직원 수
+      note:          text @label(en=Note) -- 메모
+      owner:         Member @ManyToOne @label(en=Account owner) -- 담당자
+      createdAt:     datetime @readonly @default(now) @search(between) @label(en=Created at) -- 등록 일시
+
+  # A person at an account. E-mail and phone are kept encrypted and answered masked.
+  Contact:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId)
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=REP&owner) @sort(name+)
+          @terms(person, 담당자, 연락처) @ui(menu=sales, order=40, icon=contact) @label(en=Contact) -- 연락처
+    fields:
+      contactId: long @id @sequence @label(en=Contact no.) -- 연락처 번호
+      name:      string(50)! @notblank @search(like) @label(en=Name) -- 이름
+      jobTitle:  string(50) @label(en=Job title) -- 직함
+      email:     string(100) @email @encrypt @s(eq) @env:maskemail @label(en=E-mail) -- 이메일
+      phone:     string(20) @encrypt(digits) @s(eq) @env:maskphone @label(en=Phone) -- 전화번호
+      account:   Account! @ManyToOne @label(en=Account) -- 고객사
+      owner:     Member @ManyToOne @label(en=Owner) -- 담당자
+      createdAt: datetime @readonly @default(now) @label(en=Created at) -- 등록 일시
+
+  # Someone who may buy. Qualified, then converted into an account, a contact and an
+  # opportunity - or closed.
+  Lead:
+    meta: entity @root @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId) @event(Converted)
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=REP&owner, qualify=REP&owner, convert=REP&owner, disqualify=REP&owner) @sort(createdAt-)
+          @terms(prospect, 잠재 고객, 가망 고객) @ui(menu=sales, order=10, icon=user-plus, board) @label(en=Lead) -- 리드
+    fields:
+      leadId:         long @id @sequence @label(en=Lead no.) -- 리드 번호
+      company:        string(100)! @notblank @editable @search(like) @ui(title) @label(en=Company) -- 회사명
+      contactName:    string(50)! @notblank @editable @search(like) @label(en=Contact name) -- 담당자 이름
+      email:          string(100) @email @editable @label(en=E-mail) -- 이메일
+      phone:          string(20) @editable @label(en=Phone) -- 전화번호
+      source:         LeadSource @editable @search(in) @label(en=Source) -- 유입 경로
+      industry:       Industry @editable @label(en=Industry) -- 업종
+      estimatedValue: money(15.2) @min(0) @editable @label(en=Estimated value) -- 예상 금액
+      note:           text @editable @label(en=Note) -- 메모
+      status:         LeadStatus @search(in) @label(en=Status) -- 상태
+      owner:          Member @ManyToOne @label(en=Owner) -- 담당자
+      createdAt:      datetime @readonly @default(now) @search(between) @label(en=Created at) -- 등록 일시
+      convertedAt:    timestamp @stamp(CONVERTED) @label(en=Converted at) -- 전환 일시
+    states:
+      status:
+        initial:    NEW
+        qualify:    NEW -> QUALIFIED
+        convert:    QUALIFIED -> CONVERTED
+        disqualify: NEW, QUALIFIED -> LOST
+        delete:     NEW, LOST
+
+  # A deal in the pipeline. The stage moves only along the steps below; amount, close
+  # date and the rest stay editable.
+  Opportunity:
+    meta: entity @root @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId) @event(Won(amount), Lost(amount))
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=REP&owner, propose=REP&owner, negotiate=REP&owner, win=REP&owner, lose=REP&owner, reopen=REP&owner)
+          @sort(expectedCloseDate+) @terms(deal, pipeline, 영업 기회, 딜) @ui(menu=sales, order=20, icon=trending-up, board, pipeline) @label(en=Opportunity) -- 영업 기회
+    fields:
+      opportunityId:     long @id @sequence @label(en=Opportunity no.) -- 영업 기회 번호
+      name:              string(100)! @notblank @editable @search(like) @label(en=Opportunity name) -- 영업 기회명
+      account:           Account! @ManyToOne @label(en=Account) -- 고객사
+      amount:            money(15.2) @min(0) @editable @search(between) @terms(deal size, 금액) @label(en=Amount) -- 예상 금액
+      probability:       int @min(0) @max(100) @editable @label(en=Probability (%)) -- 성공 확률(%)
+      expectedCloseDate: date @editable @search(between) @label(en=Expected close) -- 예상 마감일
+      stage:             OpportunityStage @search(in) @label(en=Stage) -- 단계
+      note:              text @editable @label(en=Note) -- 메모
+      owner:             Member @ManyToOne @label(en=Owner) -- 담당자
+      createdAt:         datetime @readonly @default(now) @label(en=Created at) -- 등록 일시
+      wonAt:             timestamp @stamp(WON) @label(en=Won at) -- 수주 일시
+      lostAt:            timestamp @stamp(LOST) @label(en=Lost at) -- 실주 일시
+    states:
+      stage:
+        initial:   PROSPECT
+        propose:   PROSPECT -> PROPOSAL
+        negotiate: PROPOSAL -> NEGOTIATION
+        win:       PROPOSAL, NEGOTIATION -> WON
+        lose:      PROSPECT, PROPOSAL, NEGOTIATION -> LOST
+        reopen:    LOST -> PROSPECT
+        delete:    PROSPECT, LOST
+
+  # Calls, meetings, e-mails and to-dos on an account or a deal.
+  Activity:
+    meta: entity @root @editable @expose(20, methods="create,read,search,update,delete,export") @owner(ownerMemberId)
+          @access(read=REP&owner, create=REP, update=REP&owner, delete=REP&owner) @sort(dueAt+)
+          @terms(task, schedule, 일정, 할 일) @ui(menu=sales, order=50, icon=calendar-check) @label(en=Activity) -- 활동
+    fields:
+      activityId:  long @id @sequence @label(en=Activity no.) -- 활동 번호
+      type:        ActivityType! @search(in) @label(en=Type) -- 종류
+      subject:     string(200)! @notblank @search(like) @label(en=Subject) -- 제목
+      dueAt:       datetime @search(between) @label(en=Due at) -- 예정 일시
+      done:        boolean @default(false) @search(eq) @label(en=Done) -- 완료
+      account:     Account @ManyToOne @label(en=Account) -- 고객사
+      opportunity: Opportunity @ManyToOne @label(en=Opportunity) -- 영업 기회
+      note:        text @label(en=Note) -- 메모
+      owner:       Member @ManyToOne @label(en=Owner) -- 담당자

@@ -1,0 +1,100 @@
+// ElastiCORE demo CRM: one DSL (src/main/resources/blueprint/crm) drives the server,
+// the TypeScript client, the screens (web/), the labels in each language and the
+// Apache Ossie semantic model the AI counsellor reads.
+//
+//   ./gradlew.bat build        generate, compile, test, bundle the screens
+//   ./gradlew.bat bootRun      http://localhost:8080 (embedded H2, sample data)
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.8'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'io.elasticore' version "${elasticoreVersion}"
+}
+
+group = 'io.elasticore.demo'
+version = '0.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+elasticore {
+    architecture = 'hexagonal'
+    language = 'java'
+    // The client the screens are typed against: src/main/ts
+    typescriptClient = true
+    // The model as an Apache Ossie semantic model: blueprint/semantic_model.yml
+    rules = ['ossie-export']
+    ossieName = 'crm'
+}
+
+dependencies {
+    // The CRM's own generation rules (the screen model), used by the generator only.
+    elasticore project(':crm-ui-rules')
+
+    implementation "io.elasticore:elasticore-base:${elasticoreVersion}"
+    implementation "io.elasticore.springboot4:elasticore-springboot4:${elasticoreVersion}"
+
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+    // The "every matching row" Excel export, streamed
+    implementation 'org.apache.poi:poi-ooxml:5.5.1'
+    // The AI assistant: Claude (Anthropic) or any OpenAI-compatible server (a local LLM),
+    // chosen by CRM_AI_PROVIDER; none by default.
+    implementation platform('org.springframework.ai:spring-ai-bom:2.1.0')
+    implementation 'org.springframework.ai:spring-ai-starter-model-anthropic'
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    // The layer test ElastiCORE writes (archTest: true in env.yml)
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// The screens (web/): type-checked against the generated client (src/main/ts) and bundled
+// into the jar's static folder, so a DSL change that breaks a screen fails the build.
+// -PskipWeb leaves them out (a server-only build).
+def npm = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+def webInstall = tasks.register('webInstall', Exec) {
+    group = 'build'
+    description = 'Installs the screens\' build tools'
+    workingDir 'web'
+    commandLine npm, 'ci', '--no-audit', '--no-fund'
+    inputs.file('web/package-lock.json')
+    outputs.dir('web/node_modules')
+}
+def webBuild = tasks.register('webBuild', Exec) {
+    group = 'build'
+    description = 'Type-checks the screens against the generated client and bundles them'
+    dependsOn webInstall, 'elcore3ts'
+    workingDir 'web'
+    commandLine npm, 'run', 'build'
+    inputs.dir('web/src')
+    inputs.dir('src/main/ts')
+    inputs.files('web/package.json', 'web/vite.config.ts', 'web/index.html')
+    outputs.dir('src/main/resources/static')
+}
+if (!project.hasProperty('skipWeb')) {
+    tasks.named('processResources') { dependsOn webBuild }
+}

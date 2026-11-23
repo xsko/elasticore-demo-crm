@@ -1,0 +1,133 @@
+/**
+ * Account as the screens see it: its fields (kind, label in each language,
+ * limits, references, search), its lifecycles and who may do what.
+ *
+ * Generated from the DSL by the CRM's own ElastiCORE rules (crm-ui-rules). Change the
+ * DSL, not this file: the generic list, form, detail and Excel export read it.
+ */
+export const AccountUi = {
+    name: "Account",
+    root: true,
+    label: "고객사",
+    labels: { en: "Account" },
+    path: "/api/crm/account",
+    key: "accountId",
+    defaultSort: "name+",
+    pageSize: 20,
+    editable: true,
+    terms: ["customer company", "client", "고객사", "거래처"],
+    access: {
+        create: "REP",
+        delete: "admin",
+        read: "REP&owner",
+        update: "REP&owner",
+    },
+    owner: "ownerMemberId",
+    ui: { icon: "building-2", menu: "sales", order: 30 },
+    fields: [
+        {
+            name: "accountId",
+            kind: "integer",
+            label: "고객사 번호",
+            labels: { en: "Account no." },
+            key: true,
+            generated: true,
+            readOnly: true,
+        },
+        {
+            name: "name",
+            kind: "string",
+            label: "고객사명",
+            labels: { en: "Account name" },
+            required: true,
+            maxLength: 100,
+            search: "like",
+        },
+        {
+            name: "industry",
+            kind: "enum",
+            label: "업종",
+            labels: { en: "Industry" },
+            enum: "Industry",
+            search: "in",
+        },
+        {
+            name: "tier",
+            kind: "enum",
+            label: "등급",
+            labels: { en: "Tier" },
+            enum: "AccountTier",
+            search: "in",
+            default: "AccountTier.STANDARD",
+        },
+        {
+            name: "website",
+            kind: "string",
+            label: "웹사이트",
+            labels: { en: "Website" },
+            maxLength: 200,
+        },
+        {
+            name: "phone",
+            kind: "string",
+            label: "대표 전화",
+            labels: { en: "Main phone" },
+            maxLength: 20,
+        },
+        {
+            name: "city",
+            kind: "string",
+            label: "도시",
+            labels: { en: "City" },
+            maxLength: 50,
+            search: "like",
+        },
+        {
+            name: "annualRevenue",
+            kind: "money",
+            label: "연 매출",
+            labels: { en: "Annual revenue" },
+            terms: ["revenue", "매출"],
+        },
+        {
+            name: "employees",
+            kind: "integer",
+            label: "직원 수",
+            labels: { en: "Employees" },
+        },
+        {
+            name: "note",
+            kind: "text",
+            label: "메모",
+            labels: { en: "Note" },
+        },
+        {
+            name: "owner",
+            kind: "ref",
+            label: "담당자",
+            labels: { en: "Account owner" },
+            ref: { entity: "Member", idField: "ownerMemberId", nameField: "ownerName" },
+        },
+        {
+            name: "createdAt",
+            kind: "datetime",
+            label: "등록 일시",
+            labels: { en: "Created at" },
+            search: "between",
+            readOnly: true,
+            default: "now",
+        },
+        {
+            name: "ownerName",
+            kind: "string",
+            label: "담당자명",
+            labels: { en: "Owner name" },
+            readOnly: true,
+            derived: true,
+            display: true,
+        },
+    ],
+    lifecycles: [],
+} as const;
+
+export default AccountUi;

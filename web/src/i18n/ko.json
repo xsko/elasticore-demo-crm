@@ -1,0 +1,64 @@
+{
+  "app": { "name": "ElastiCORE CRM", "tagline": "영업과 고객 상담을 한 곳에서", "point1": "DSL 한 곳에서 API, 화면, 엑셀, AI 상담까지", "point2": "ElastiCORE 3.0으로 만든 데모",
+    "f1": "파이프라인", "f1Body": "리드에서 수주까지 단계별로 관리하고, 끌어 놓아 단계를 옮깁니다.",
+    "f2": "고객 상담", "f2Body": "문의 접수부터 답변·종결까지, 고객은 자기 문의만 봅니다.",
+    "f3": "AI 상담", "f3Body": "CRM 데이터와 도움말을 근거로, 내 권한 안에서 답합니다.",
+    "fictional": "회사·사람 이름은 모두 지어낸 것입니다" },
+  "menu": { "home": "홈", "pipeline": "파이프라인", "sales": "영업", "service": "고객 서비스", "catalog": "상품", "admin": "관리", "assistant": "AI 상담", "ai": "AI", "myTickets": "내 문의" },
+  "common": {
+    "list": "목록", "board": "보드",
+    "new": "새로 만들기", "edit": "편집", "delete": "삭제", "save": "저장", "cancel": "취소", "close": "닫기",
+    "search": "검색", "reset": "초기화", "filter": "필터", "more": "더 보기", "back": "목록으로",
+    "loading": "불러오는 중", "noData": "표시할 항목이 없습니다.", "yes": "예", "no": "아니요",
+    "all": "전체", "mine": "내 항목", "refresh": "새로 고침", "columns": "열 설정", "density": "행 높이",
+    "compact": "촘촘하게", "comfortable": "보통", "selected": "{{count}}건 선택", "total": "총 {{count}}건",
+    "range": "{{from}}-{{to}} / 총 {{total}}건", "perPage": "{{n}}건씩", "confirmDelete": "선택한 {{count}}건을 삭제할까요?",
+    "confirmDeleteOne": "이 항목을 삭제할까요?", "deleted": "삭제했습니다.", "saved": "저장했습니다.",
+    "required": "{{label}}을(를) 입력하세요.", "maxLength": "{{label}}은(는) {{n}}자 이내로 입력하세요.",
+    "from": "부터", "to": "까지", "details": "상세 정보", "related": "관련 항목", "system": "시스템 정보",
+    "masked": "보호된 정보", "maskedKept": "가려진 값을 그대로 두면 저장된 값이 유지됩니다.", "encrypted": "암호화 저장", "noAccess": "이 화면을 볼 권한이 없습니다.",
+    "error": "요청을 처리하지 못했습니다.", "expand": "메뉴 펼치기", "collapse": "메뉴 접기", "language": "언어", "showColumns": "표시할 열", "resetColumns": "기본값으로"
+  },
+  "validation": {
+    "minLength": "{{label}}은(는) {{n}}자 이상 입력하세요.", "minItems": "{{label}}을(를) {{n}}개 이상 넣으세요.",
+    "min": "{{label}}은(는) {{n}} 이상이어야 합니다.", "max": "{{label}}은(는) {{n}} 이하여야 합니다.",
+    "pattern": "{{label}}의 형식이 맞지 않습니다.", "email": "{{label}}에 올바른 이메일 주소를 입력하세요.",
+    "invalid": "{{label}} 값을 확인하세요."
+  },
+  "excel": {
+    "menu": "엑셀", "view": "지금 보이는 표", "viewHint": "현재 쪽, 보이는 열과 순서 그대로",
+    "selection": "선택한 행", "all": "조건 결과 전체", "allHint": "검색 조건의 모든 행 (최대 {{max}}건)",
+    "preparing": "엑셀 파일을 만드는 중", "done": "{{count}}건을 내려받았습니다.", "tooMany": "{{count}}건은 최대 {{max}}건을 넘습니다. 조건을 좁혀 주세요."
+  },
+  "record": { "path": "진행 단계", "markAs": "{{stage}}(으)로", "moved": "{{stage}} 단계로 옮겼습니다.", "owner": "담당자", "created": "등록", "notFound": "항목을 찾을 수 없습니다." },
+  "commands": {
+    "qualify": "검증 완료", "convert": "전환", "disqualify": "종료", "propose": "제안", "negotiate": "협상 시작",
+    "win": "수주", "lose": "실주", "reopen": "다시 열기", "send": "발송", "accept": "승인", "reject": "거절",
+    "answer": "답변 완료", "close": "종결"
+  },
+  "home": {
+    "title": "영업 현황", "pipeline": "진행 중 파이프라인", "won": "수주 금액", "winRate": "승률", "openTickets": "미종결 상담",
+    "byStage": "단계별 파이프라인", "upcoming": "다가오는 활동", "closing": "이번 분기 마감 예정", "recentTickets": "최근 상담",
+    "deals": "{{count}}건", "noUpcoming": "예정된 활동이 없습니다.",
+    "morning": "좋은 아침입니다, {{name}}님", "afternoon": "안녕하세요, {{name}}님", "evening": "수고 많으셨습니다, {{name}}님",
+    "subtitleMine": "내가 맡은 고객과 영업 기회입니다.", "subtitleAll": "전체 영업 팀의 현황입니다.",
+    "wonDeals": "{{count}}건 수주", "winRateSub": "마감 {{closed}}건 중 {{won}}건 수주", "urgent": "긴급 {{count}}건",
+    "byStageSub": "진행 중 {{count}}건 · {{amount}}"
+  },
+  "pipeline": { "title": "영업 파이프라인", "hint": "카드를 다음 단계로 끌어 놓으면 단계가 바뀝니다. DSL의 states가 허용하는 이동만 됩니다.", "notAllowed": "{{from}}에서 {{to}}(으)로는 옮길 수 없습니다." },
+  "auth": {
+    "signIn": "로그인", "signOut": "로그아웃", "signUp": "회원 가입", "login": "아이디", "password": "비밀번호",
+    "name": "이름", "email": "이메일", "company": "회사", "phone": "전화번호", "noAccount": "계정이 없으신가요?",
+    "haveAccount": "이미 계정이 있으신가요?", "wrong": "아이디나 비밀번호가 맞지 않거나, 잠시 로그인이 제한되었습니다.",
+    "signedUp": "가입했습니다. 로그인되었습니다.", "demo": "데모 계정", "demoHint": "비밀번호는 모두 demo1234",
+    "admin": "관리자", "rep": "영업 담당", "customer": "고객", "passwordRule": "8자 이상, 영문과 숫자를 함께",
+    "signUpNote": "가입한 계정은 고객 계정입니다. 문의 접수와 AI 상담을 쓸 수 있습니다."
+  },
+  "assistant": {
+    "title": "AI 상담", "placeholder": "무엇을 도와드릴까요?", "send": "보내기", "thinking": "답변을 준비하고 있습니다",
+    "intro": "CRM 데이터와 도움말을 근거로 답합니다. 보이는 데이터는 로그인한 계정의 권한 안입니다.",
+    "sources": "근거", "unavailable": "AI 상담을 쓸 수 없습니다. 서버에 AI 키가 설정되지 않았습니다.", "newChat": "새 대화",
+    "suggestStaff": ["이번 분기에 마감 예정인 내 영업 기회는?", "진행 중 파이프라인 금액과 승률을 알려줘", "긴급한 미해결 상담이 있어?"],
+    "suggestCustomer": ["세금계산서는 언제 발행되나요?", "내 문의 처리 상황을 알려줘", "2단계 인증은 어떻게 켜나요?"]
+  }
+}
