@@ -32,6 +32,7 @@ on the first start:
 
 ```bash
 CRM_SEED_LANGUAGE=ko ./gradlew bootRun      # default en; CRM_CURRENCY=USD|KRW sets the currency on its own
+# Windows PowerShell: $env:CRM_SEED_LANGUAGE='ko'; .\gradlew.bat bootRun
 ```
 
 Each language has its own database file (`./data/crm-en`, `./data/crm-ko`), so switching deletes nothing. To start the
@@ -48,35 +49,37 @@ CRM_AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... ./gradlew bootRun
 CRM_AI_PROVIDER=openai OPENAI_BASE_URL=http://<host>:8000/v1 CRM_AI_MODEL=<model> OPENAI_API_KEY=<key or anything> ./gradlew bootRun
 ```
 
+In Windows PowerShell set each variable first (`$env:CRM_AI_PROVIDER='anthropic'`, ...), then run `.\gradlew.bat bootRun`.
 Without them the assistant answers "not configured" (503) and everything else works as usual.
 
 ## Compared with writing it by hand — what ElastiCORE gives
 
-The numbers below were counted in this repository (non-blank, non-comment lines; 2026-11-22, commit 5f0df42).
+The numbers below were counted in this repository (non-blank, non-comment lines, on 2026-11-23).
 "By hand" means building the same features with Spring Boot and React without a generator.
 
 ### 1. What people wrote and what ElastiCORE generated
 
 | Part | Files | Lines | Written by |
 |---|---:|---:|---|
-| **DSL** (`blueprint/crm/*.yml`) | 8 | **401** | people |
+| **DSL** (`blueprint/crm/*.yml`) | 8 | **403** | people |
 | Server Java (entities, DTOs, mappers, repositories, services, REST, access checks, lifecycles, validation, error handling) | 155 | 12,007 | ElastiCORE |
-| TypeScript client (DTOs, API, validation, enum labels) + screen models | 71 | 2,969 | ElastiCORE (+ team rules) |
+| TypeScript client (DTOs, API, validation, enum labels) + screen models | 71 | 2,970 | ElastiCORE (+ team rules) |
 | Label and message bundles (en/ko) | 4 | 760 | ElastiCORE |
 | Database schema document + Ossie semantic model (what the AI assistant reads) | 2 | 1,391 | ElastiCORE |
-| Team rules `crm-ui-rules` (DSL → screen model, missing-translation check) | 3 | 417 | people, once |
-| Hand-written server Java (sample data 545, AI assistant 422, metrics 197, security filters 180, other 187) | 17 | 1,531 | people |
-| Screens `web/src` (list, record, form, board, home and assistant, shared by every entity) | 29 | 2,578 (+354 CSS) | people |
+| Tests: a contract test class per entity and their support class, and the architecture test | 12 | 2,956 | ElastiCORE (written once, then the project's) |
+| Team rules `crm-ui-rules` (DSL → screen model, missing-translation check) | 3 | 418 | people, once |
+| Hand-written server Java (sample data 545, AI assistant 422, metrics 197, security filters 180, other 172) | 16 | 1,516 | people |
+| Screens `web/src` (list, record, form, board, home and assistant, shared by every entity) | 30 | 2,675 (+354 CSS) | people |
 
-- **401 lines of DSL produce about 15,000 lines of Java and TypeScript - about 37 lines per DSL line.**
-  With the label bundles, the schema and the semantic model, about 17,000 lines.
-- **89%** of the server's Java (12,007 of 13,538 lines) is generated. The hand-written server code is what the DSL
+- **403 lines of DSL produce about 15,000 lines of Java and TypeScript - about 37 lines per DSL line.**
+  With the label bundles, the schema and the semantic model, about 17,000 lines, and about 3,000 lines of tests on top.
+- **89%** of the server's Java (12,007 of 13,523 lines) is generated. The hand-written server code is what the DSL
   cannot say: sample data, the AI assistant, metric calculation, CSRF, security headers, sign-in throttling and lead
   conversion.
-- The **107 generated REST endpoints** (11 entities) took no hand-written line: read, search, create, update, delete,
-  batch operations, lifecycle commands and export.
-- The screens know no entity. Only the home dashboard names entities (three); the lists, records, forms, boards and
-  Excel export of all 11 entities run on the same code.
+- The **107 generated REST endpoints** (10 entities with an API) took no hand-written line: read, search, create,
+  update, delete, batch operations, lifecycle commands and export.
+- The screens know no entity. Only the home dashboard (three entities) and the sign-up page (the sign-in entity's
+  generated validator) name one; the lists, records, forms, boards and Excel export of every entity run on the same code.
 
 ### 2. Adding one field
 
@@ -86,8 +89,8 @@ added to the DSL and the generation was run:
 | | ElastiCORE (measured) | By hand (the places usually edited) |
 |---|---|---|
 | Edited by hand | **1 DSL line** | DB column, entity, response DTO, search DTO and query, mapper, server and client validation, TS type, list column, search input, form input, detail view, Excel column, two translations, API docs, AI context - more than ten places |
-| Files that changed | 14 files, 72 lines (entity, DTO, search DTO, mapper, query class, 3 label files, schema, Ossie model, TS DTO, search DTO, screen model, API support) - all generated | one by one, by a person |
-| Screen code changed | **0 lines** - the field appears in the list, search, form, detail, Excel and both languages | every screen |
+| Files that changed | 14 files, 76 lines (entity, DTO, search DTO, mapper, query class, 3 label files, schema, Ossie model, TS DTO and search DTO, screen model, and a contract test of the field's length) - all generated | one by one, by a person |
+| Screen code changed | **0 lines** - the field appears in the list, search, form, detail, Excel and both languages, and the form checks its length | every screen |
 | If something is forgotten | no English label: **the build stops**; a screen out of step with the generated client: **the type check fails the build** | found in testing or in production |
 
 `scripts/dsl-change-demo.ps1` runs this end to end: the build stops without the label, the field reaches every place
@@ -151,7 +154,8 @@ Not there yet (to do before production):
 ```
 src/main/resources/blueprint/crm/            ← what people write: env.yml, model/*.yml
         │  ./gradlew build
-        ├─ elcore3   → Java: entities, DTOs, services, REST, access (@access/@owner), lifecycles (states:), encryption, masking
+        ├─ elcore3   → Java: entities, DTOs, services, REST, access (@access/@owner), lifecycles (states:), encryption, masking;
+        │              src/test: a contract test per entity (testCode: contract) and the architecture test
         ├─ elcore3ts → src/main/ts: typed client + the screen models of crm-ui-rules (<Entity>Ui.ts)
         ├─ ossie     → blueprint/semantic_model.yml (Apache Ossie): dashboard metrics and the AI assistant's grounding
         ├─ i18n      → crm-labels*.properties (labels, enum values included), crm-messages.properties (refusals)
@@ -161,7 +165,8 @@ src/main/resources/blueprint/crm/            ← what people write: env.yml, mod
 | Feature | Where | What it does |
 |---|---|---|
 | Labels in each language | `-- Korean @label(en=English)` | on entity, field and enum lines; enum values from the enum's own `label` and `label_en` columns → the generated `XxxLabel`/`XxxLabels`, the label bundles, Ossie. A missing English label stops the build (`crm.languages` in env.yml) |
-| Refusal messages | `labelLanguage: ko` (env.yml) | messages name the field, the entity and the states by their DSL labels ("Opportunity cannot win when Stage is Prospecting; it must be Proposal, Negotiation") |
+| Constraints | `!`, `string(n)`, `@length`, `@min`, `@max`, `@pattern`, `@email`, `@minsize` | checked by the server, by the screens before a request is sent (the generated `validateXxxCodes`), and by the generated contract tests |
+| Refusal messages | `labelLanguage: ko` (env.yml) | messages name the field, the entity and the states by their DSL labels ("Opportunity cannot win when Stage is Prospecting; it must be [Proposal, Negotiation]") |
 | Menu and screen hints | `@ui(menu=sales, order=20, icon=..., board, title)` | read by `crm-ui-rules` into the screen model |
 | Access | `@access(read=REP&owner, create=REP, answer=REP, ...)` `@owner(...)` | roles (`REP`) and levels (`owner`) joined with `&` and `\|`; enforced by the server, and the screens and metrics read the same rules |
 | Lifecycles | `states:` | the record's step bar, drag and drop on the board, the command buttons |
@@ -181,6 +186,10 @@ Vite + React 19 + **Refine 5 + Ant Design 5**. The screen code knows no entity: 
   "every matching row" (ElastiCORE's generated `POST .../export` - every row of the same search, same access and
   masking, up to 100,000 rows). Headers and enum values (Prospecting / 발굴) follow the chosen language, and values that
   look like formulas stay text. Enum labels come from the export request's `labels: "*"` (ElastiCORE #289).
+- **Forms check what the DSL declares before sending:** every constraint through ElastiCORE's generated
+  `validateXxxCodes`, each code said in the chosen language (`web/src/form/codes.ts`). The sign-up page uses the
+  sign-in entity's validator, so the password rule lives in the DSL only. A field error from the server lands on its
+  field, a quote line's (`lines[0].quantity`) on its row.
 - Record pages (summary, steps, related lists, activity timeline), boards (only the moves the DSL's `states:` allow),
   a dashboard (the DSL's metrics) and the AI assistant.
 
@@ -197,6 +206,8 @@ Vite + React 19 + **Refine 5 + Ant Design 5**. The screen code knows no entity: 
 | `SeedTextTest` | 7 | the English and Korean sample data have the same shape, and every code they name exists | people |
 | `AppInfoControllerTest` | 3 | the currency the screens show | people |
 | `CrmUiRulesTest` (crm-ui-rules) | 4 | the team rule: DSL → screen model, a missing English label stops the build, blind indexes are skipped | people |
+
+403 tests in all under Gradle, none skipped, plus 10 Playwright screen tests and 29 smoke checks of the API.
 
 The contract tests are written once by ElastiCORE and then belong to the project: a DSL change is merged into them, and
 the edits are kept. Every request goes through `CrmContractSupport`, which adds the demo's XSRF cookie and header,

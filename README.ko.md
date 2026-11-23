@@ -29,6 +29,7 @@ AI 상담까지 DSL에서 나옵니다.
 
 ```bash
 CRM_SEED_LANGUAGE=ko ./gradlew bootRun      # 기본 en. 통화는 CRM_CURRENCY=USD|KRW 로 따로 정할 수도 있습니다
+# Windows PowerShell: $env:CRM_SEED_LANGUAGE='ko'; .\gradlew.bat bootRun
 ```
 
 언어마다 DB 파일이 따로 있어서(`./data/crm-en`, `./data/crm-ko`) 바꿔도 지울 것이 없습니다.
@@ -45,32 +46,34 @@ CRM_AI_PROVIDER=anthropic ANTHROPIC_API_KEY=... ./gradlew bootRun
 CRM_AI_PROVIDER=openai OPENAI_BASE_URL=http://<host>:8000/v1 CRM_AI_MODEL=<model> OPENAI_API_KEY=<key 또는 아무 값> ./gradlew bootRun
 ```
 
+Windows PowerShell 에서는 변수를 먼저 하나씩 넣고(`$env:CRM_AI_PROVIDER='anthropic'` ...) `.\gradlew.bat bootRun` 을 실행합니다.
 설정하지 않으면 AI 상담 화면은 "설정되지 않음"(503)으로 답하고 나머지는 그대로 동작합니다.
 
 ## 일반 개발과 비교 — ElastiCORE 로 얻은 것
 
-아래 수치는 이 저장소를 직접 센 값입니다(빈 줄·주석 제외, 2026-11-22, 커밋 5f0df42).
+아래 수치는 이 저장소를 직접 센 값입니다(빈 줄·주석 제외, 2026-11-23 기준).
 "일반 개발"은 같은 기능을 Spring Boot + React 로 손으로 짜는 경우를 말합니다.
 
 ### 1. 사람이 쓴 것과 ElastiCORE 가 만든 것
 
 | 구분 | 파일 | 줄 | 누가 |
 |---|---:|---:|---|
-| **DSL** (`blueprint/crm/*.yml`) | 8 | **401** | 사람 |
+| **DSL** (`blueprint/crm/*.yml`) | 8 | **403** | 사람 |
 | 서버 Java (엔티티·DTO·매퍼·리포지토리·서비스·REST·권한·상태 전환·검증·오류 처리) | 155 | 12,007 | ElastiCORE |
-| TypeScript 클라이언트 (DTO·API·검증·enum 라벨) + 화면 모델 | 71 | 2,969 | ElastiCORE (+ 팀 규칙) |
+| TypeScript 클라이언트 (DTO·API·검증·enum 라벨) + 화면 모델 | 71 | 2,970 | ElastiCORE (+ 팀 규칙) |
 | 라벨·오류 문구 번들 (ko/en) | 4 | 760 | ElastiCORE |
 | DB 스키마 문서 + Ossie 의미 모델 (AI 상담의 근거) | 2 | 1,391 | ElastiCORE |
-| 팀 규칙 `crm-ui-rules` (DSL → 화면 모델, 번역 누락 검사) | 3 | 417 | 사람, 한 번 |
-| 서버 Java 직접 작성 (샘플 데이터 545, AI 상담 422, 지표 197, 보안 필터 180, 그 밖 187) | 17 | 1,531 | 사람 |
-| 화면 `web/src` (모든 엔티티 공용 목록·상세·입력·보드·홈·AI 상담) | 29 | 2,578 (+CSS 354) | 사람 |
+| 시험: 엔티티마다 계약 시험 클래스 하나와 그 지원 클래스, 계층 시험 | 12 | 2,956 | ElastiCORE (한 번 생성, 이후 프로젝트 소유) |
+| 팀 규칙 `crm-ui-rules` (DSL → 화면 모델, 번역 누락 검사) | 3 | 418 | 사람, 한 번 |
+| 서버 Java 직접 작성 (샘플 데이터 545, AI 상담 422, 지표 197, 보안 필터 180, 그 밖 172) | 16 | 1,516 | 사람 |
+| 화면 `web/src` (모든 엔티티 공용 목록·상세·입력·보드·홈·AI 상담) | 30 | 2,675 (+CSS 354) | 사람 |
 
-- **DSL 401줄이 코드 약 15,000줄(Java + TypeScript)을 만듭니다. DSL 1줄당 약 37줄입니다.**
-  라벨 번들·스키마·의미 모델까지 넣으면 약 17,000줄입니다.
-- 서버 Java 의 **89%** (12,007 / 13,538줄)가 생성 코드입니다. 손으로 쓴 서버 코드는 DSL 이 말할 수 없는 것뿐입니다:
+- **DSL 403줄이 코드 약 15,000줄(Java + TypeScript)을 만듭니다. DSL 1줄당 약 37줄입니다.**
+  라벨 번들·스키마·의미 모델까지 넣으면 약 17,000줄이고, 그 위에 시험 코드가 약 3,000줄 더 생깁니다.
+- 서버 Java 의 **89%** (12,007 / 13,523줄)가 생성 코드입니다. 손으로 쓴 서버 코드는 DSL 이 말할 수 없는 것뿐입니다:
   샘플 데이터, AI 상담, 지표 계산, CSRF·보안 헤더·로그인 시도 제한, 리드 전환 처리.
-- 생성된 REST API **107개**(엔티티 11개)를 손으로 쓴 줄은 0입니다. 조회·검색·생성·수정·삭제·일괄 처리, 상태 명령, 내보내기가 모두 포함됩니다.
-- 화면 코드는 엔티티 이름을 모릅니다. 엔티티 이름이 나오는 화면은 홈 대시보드 하나(3개 엔티티)뿐이고, 나머지 목록·상세·입력·보드·Excel 은 11개 엔티티가 같은 코드를 씁니다.
+- 생성된 REST API **107개**(API 가 있는 엔티티 10개)를 손으로 쓴 줄은 0입니다. 조회·검색·생성·수정·삭제·일괄 처리, 상태 명령, 내보내기가 모두 포함됩니다.
+- 화면 코드는 엔티티 이름을 모릅니다. 엔티티 이름이 나오는 곳은 홈 대시보드(3개 엔티티)와 가입 화면(로그인 엔티티의 생성 검사 함수)뿐이고, 나머지 목록·상세·입력·보드·Excel 은 모든 엔티티가 같은 코드를 씁니다.
 
 ### 2. 필드 하나를 추가할 때
 
@@ -79,8 +82,8 @@ DSL 에 `segment: string(30) @search(like) @label(en=Segment) -- 고객 세그�
 | | ElastiCORE (실측) | 일반 개발 (보통 손으로 고치는 곳) |
 |---|---|---|
 | 손으로 고치는 곳 | **DSL 1줄** | DB 컬럼, 엔티티, 응답 DTO, 검색 DTO와 쿼리, 매퍼, 서버·화면 검증, TS 타입, 목록 열, 검색 입력, 입력 폼, 상세 화면, Excel 열, 한·영 번역, API 문서, AI 상담 맥락 - 10곳 넘게 |
-| 같이 바뀐 파일 | 14개, 72줄 (엔티티, DTO, 검색 DTO, 매퍼, 쿼리 클래스, 라벨 3개, 스키마, Ossie 모델, TS DTO·검색 DTO·화면 모델·API 지원) — 모두 생성 | 사람이 하나씩 |
-| 화면 코드 수정 | **0줄** — 목록·검색·폼·상세·Excel·두 언어에 바로 나타남 | 화면마다 수정 |
+| 같이 바뀐 파일 | 14개, 76줄 (엔티티, DTO, 검색 DTO, 매퍼, 쿼리 클래스, 라벨 3개, 스키마, Ossie 모델, TS DTO·검색 DTO·화면 모델, 그리고 새 필드 길이의 계약 시험) — 모두 생성 | 사람이 하나씩 |
+| 화면 코드 수정 | **0줄** — 목록·검색·폼·상세·Excel·두 언어에 바로 나타나고, 폼이 길이도 검사함 | 화면마다 수정 |
 | 빠뜨렸을 때 | 영어 라벨이 없으면 **빌드가 멈춤**, 화면이 생성 클라이언트와 어긋나면 **타입 검사에서 빌드 실패** | 시험이나 운영에서 발견 |
 
 `scripts/dsl-change-demo.ps1` 이 이 과정(라벨 없으면 빌드 중단 → 라벨 넣으면 모든 곳 반영 → 브라우저 시험)을 그대로 보여 줍니다.
@@ -138,7 +141,8 @@ ElastiCORE 열의 항목은 DSL 한 줄이 모든 엔티티·모든 경로에 �
 ```
 src/main/resources/blueprint/crm/            ← 사람이 쓰는 곳: env.yml, model/*.yml
         │  ./gradlew build
-        ├─ elcore3   → Java: 엔티티·DTO·서비스·REST·권한(@access/@owner)·상태 전환(states:)·암호화·마스킹
+        ├─ elcore3   → Java: 엔티티·DTO·서비스·REST·권한(@access/@owner)·상태 전환(states:)·암호화·마스킹,
+        │              src/test: 엔티티별 계약 시험(testCode: contract)과 계층 시험
         ├─ elcore3ts → src/main/ts: 타입 클라이언트 + crm-ui-rules 의 화면 모델(<Entity>Ui.ts)
         ├─ ossie     → blueprint/semantic_model.yml (Apache Ossie): 대시보드 지표와 AI 상담의 근거
         ├─ i18n      → crm-labels*.properties (라벨, enum 값 포함), crm-messages.properties (거절 문구)
@@ -148,7 +152,8 @@ src/main/resources/blueprint/crm/            ← 사람이 쓰는 곳: env.yml, 
 | 기능 | 어디서 | 설명 |
 |---|---|---|
 | 다국어 라벨 | `-- 한국어 @label(en=English)` | 엔티티·필드·enum 줄. enum 값은 enum 자체의 `label`, `label_en` 열 → 생성 `XxxLabel`/`XxxLabels`, 라벨 번들, Ossie. 영어 라벨이 빠지면 빌드가 멈춥니다(`crm.languages` in env.yml) |
-| 거절 문구 | `labelLanguage: ko` (env.yml) | "단계가 발굴일 때는 수주로 바꿀 수 없습니다" 처럼 필드·엔티티·상태를 DSL 라벨로 부릅니다 |
+| 제약 | `!`, `string(n)`, `@length`, `@min`, `@max`, `@pattern`, `@email`, `@minsize` | 서버가 검사하고, 화면도 요청 전에 같은 검사를 하며(생성된 `validateXxxCodes`), 생성된 계약 시험이 확인합니다 |
+| 거절 문구 | `labelLanguage: ko` (env.yml) | "단계가 발굴일 때는 수주로 바꿀 수 없습니다. [제안, 협상]일 때만 할 수 있습니다" 처럼 필드·엔티티·상태를 DSL 라벨로 부릅니다 |
 | 메뉴·화면 힌트 | `@ui(menu=sales, order=20, icon=..., board, title)` | `crm-ui-rules` 가 읽어 화면 모델에 넣습니다 |
 | 권한 | `@access(read=REP&owner, create=REP, answer=REP, ...)` `@owner(...)` | 역할(`REP`)과 수준(`owner`)을 `&`·`\|` 로 묶습니다. 서버가 강제하고 화면·지표도 같은 규칙을 씁니다 |
 | 상태 흐름 | `states:` | 기록 화면의 단계 표시, 보드(칸반)의 끌어 놓기, 명령 버튼 |
@@ -167,6 +172,9 @@ Vite + React 19 + **Refine 5 + Ant Design 5**. 화면 코드는 엔티티 이름
   "조건 결과 전체"(ElastiCORE 가 생성한 `POST .../export` - 같은 검색 조건의 모든 행, 권한·마스킹 동일, 최대 10만 건).
   머리글과 enum 값(발굴 / Prospecting)은 고른 언어로, 수식처럼 보이는 값은 문자로. enum 을 라벨로 쓰는 것은
   내보내기 요청의 `labels: "*"` 입니다(ElastiCORE #289).
+- **폼은 보내기 전에 DSL 제약을 검사**: ElastiCORE 가 생성한 `validateXxxCodes` 로 모든 제약을 확인하고, 코드마다 고른 언어의
+  문구로 보여 줍니다(`web/src/form/codes.ts`). 가입 화면도 로그인 엔티티의 생성 검사 함수를 쓰므로 비밀번호 규칙은 DSL 에만 있습니다.
+  서버가 보낸 필드 오류는 그 필드에, 견적 품목의 오류(`lines[0].quantity`)는 그 행에 표시됩니다.
 - 기록 화면(요약·단계·관련 목록·활동 타임라인), 보드(DSL `states:` 가 허락하는 이동만), 대시보드(DSL 지표), AI 상담.
 
 ### 보안
@@ -186,6 +194,8 @@ Vite + React 19 + **Refine 5 + Ant Design 5**. 화면 코드는 엔티티 이름
 | `SeedTextTest` | 7 | 영어·한국어 샘플 데이터의 모양이 같고, 쓰는 코드가 모두 실제 enum 값인지 | 사람 |
 | `AppInfoControllerTest` | 3 | 화면이 쓰는 통화 | 사람 |
 | `CrmUiRulesTest` (crm-ui-rules) | 4 | 팀 규칙: DSL → 화면 모델, 영어 라벨 누락 시 빌드 중단, blind index 제외 | 사람 |
+
+Gradle 시험은 모두 403개이고 건너뛴 것은 없습니다. 그 밖에 Playwright 화면 시험 10개와 API 점검 29건이 있습니다.
 
 계약 시험은 ElastiCORE가 한 번 만들어 주고, 그 뒤로는 프로젝트가 관리합니다. DSL이 바뀌면 시험에 병합되고, 손으로 고친 내용은 유지됩니다.
 모든 요청은 `CrmContractSupport`를 거치며, 여기서 데모의 XSRF 쿠키와 헤더를 붙입니다. 생성된 시험에서 고친 것은 이것뿐입니다.
@@ -246,7 +256,7 @@ AI 에게 맡길 때 이렇게 지시하면 결과가 안정적이었습니다:
 "DSL 로 할 수 있으면 DSL 로 하고, 안 되면 이유를 말해라. 생성 경고·컴파일·시험·화면 시험 결과를 증거로 보여 줘라.
 생성 파일은 고치지 말고, ElastiCORE 문제는 우회하지 말고 보고해라."
 
-## ElastiCORE 에 보고할 것
+## ElastiCORE 에 보고한 것
 
 작업 중 찾은 버그·개선 요청은 [docs/elasticore-issues](docs/elasticore-issues/README.md) 에 ElastiCORE 이슈 양식으로 정리했습니다.
 처음 보고한 9건(#266~#274)은 정식 ElastiCORE 3에 들어갔고, 데모는 그 기능으로 바꿔 자체 우회 코드(직원 전용 검사, 자체 Excel 내보내기,
