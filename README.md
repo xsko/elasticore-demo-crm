@@ -289,3 +289,7 @@ encryption and the export are to come.
 The feature scope follows [jmix-crm](https://github.com/jmix-framework/jmix-crm), but no code was taken from it; the
 business focus (deals and customer service), the screen flow and the design are this project's own. Development plan
 (Korean): [docs/development-plan.md](docs/development-plan.md).
+
+## License
+
+Apache License 2.0, the same license as ElastiCORE: [LICENSE](LICENSE), [NOTICE](NOTICE).

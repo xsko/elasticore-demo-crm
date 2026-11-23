@@ -267,3 +267,7 @@ enum 라벨 규칙)를 지웠습니다. 이어서 찾은 2건(#289 내보내기�
 
 기능 범위는 [jmix-crm](https://github.com/jmix-framework/jmix-crm) 을 참고했지만 코드는 가져오지 않았고,
 업무 초점(영업 기회 + 고객 상담), 화면 흐름, 디자인을 따로 정했습니다. 개발 계획: [docs/development-plan.md](docs/development-plan.md).
+
+## 라이선스
+
+ElastiCORE 와 같은 Apache License 2.0 입니다: [LICENSE](LICENSE), [NOTICE](NOTICE).
